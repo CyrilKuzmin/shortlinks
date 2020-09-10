@@ -41,7 +41,7 @@
   font-size: 16px;
 }
 .button[type=button] {
-  background-color: #0066FF; /* Green */
+  background-color: #0066FF; /* Blue */
   border: none;
   color: white;
   padding: 15px 32px;
@@ -53,6 +53,18 @@
 
 .btn-container {
     text-align: center;
+}
+
+.alert-container {
+    text-align: center;
+    display: block;
+}
+
+.alert {
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+  visibility: hidden;
 }
 </style>
 
@@ -83,12 +95,16 @@
               <button type="submit" class="button" onclick="generate()">GENERATE</button>
               <button type="button" class="button" id="copyButton">COPY</button>
             </div>
+            <p></p>
+            <div class="alert-container"></div>
+              <div id="result-div" class="alert alert-success" role="alert"></div>
+            </div>
           </div>
         </div>
-
       </div>
     </section><!-- End MAIN Section -->
   </main><!-- End #main -->
+
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/jquery/jquery.min.js"></script>
@@ -108,14 +124,31 @@
 
   <script>
       function generate() {
-        $.get("/getshort", {"link": $('textarea#linkarea').val()}, onAjaxSuccess);
+        $('div#result-div').css('visibility', 'hidden')
+        $.ajax({
+        url: "/getshort",
+        data: {"link": $('textarea#linkarea').val()},
+        type: 'GET',
+        dataType: 'text',
+        success: onAjaxSuccess,
+        error: onAjaxFail
+        });
       }
       function onAjaxSuccess(data) {
-        $('textarea#linkarea').val(data)
+        $('div#result-div').css('visibility', 'visible')
+        $('div#result-div').removeClass('alert-warning')
+        $('div#result-div').addClass('alert-success')
+        $('div#result-div').text(data)
+      }
+      function onAjaxFail(data) {
+        $('div#result-div').css('visibility', 'visible')
+        $('div#result-div').removeClass('alert-success')
+        $('div#result-div').addClass('alert-warning')
+        $('div#result-div').text(data.responseText)
       }
 
       document.getElementById("copyButton").addEventListener("click", function() {
-    copyToClipboard(document.getElementById("linkarea"));
+    copyToClipboard(document.getElementById("result-div"));
 });
 
 function copyToClipboard(elem) {
